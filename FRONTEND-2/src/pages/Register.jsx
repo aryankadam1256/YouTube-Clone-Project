@@ -16,6 +16,8 @@ const Register = () => {
     coverImage: null
   });
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -65,123 +67,136 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <div className="mx-auto h-12 w-12 bg-red-600 rounded-full flex items-center justify-center">
-            <span className="text-white font-bold text-xl">YT</span>
-          </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Create your account
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Or{' '}
-            <Link to="/login" className="font-medium text-red-600 hover:text-red-500">
-              sign in to existing account
-            </Link>
+    <div className="auth-container">
+      <div className="auth-form">
+        <div className="auth-logo">
+          <div className="auth-logo-icon">YT</div>
+          <h1 className="auth-title">Create your account</h1>
+          <p className="auth-subtitle">
+            Or <Link to="/login">sign in to existing account</Link>
           </p>
         </div>
-        
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Username *</label>
-              <input
-                name="username"
-                type="text"
-                required
-                value={formData.username}
-                onChange={handleInputChange}
-                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500"
-                placeholder="Enter username"
-                disabled={isLoading}
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Email *</label>
-              <input
-                name="email"
-                type="email"
-                required
-                value={formData.email}
-                onChange={handleInputChange}
-                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500"
-                placeholder="Enter email"
-                disabled={isLoading}
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Full Name *</label>
-              <input
-                name="fullname"
-                type="text"
-                required
-                value={formData.fullname}
-                onChange={handleInputChange}
-                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500"
-                placeholder="Enter full name"
-                disabled={isLoading}
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Password *</label>
+
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label className="form-label">Username *</label>
+            <input
+              name="username"
+              type="text"
+              required
+              value={formData.username}
+              onChange={handleInputChange}
+              className="form-input"
+              placeholder="Enter username"
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Email *</label>
+            <input
+              name="email"
+              type="email"
+              required
+              value={formData.email}
+              onChange={handleInputChange}
+              className="form-input"
+              placeholder="Enter email"
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Full Name *</label>
+            <input
+              name="fullname"
+              type="text"
+              required
+              value={formData.fullname}
+              onChange={handleInputChange}
+              className="form-input"
+              placeholder="Enter full name"
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Password *</label>
+            <div style={{ display: 'flex', gap: 8 }}>
               <input
                 name="password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 required
                 value={formData.password}
                 onChange={handleInputChange}
-                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500"
+                className="form-input"
                 placeholder="Enter password"
                 disabled={isLoading}
               />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Confirm Password *</label>
-              <input
-                name="confirmPassword"
-                type="password"
-                required
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500"
-                placeholder="Confirm password"
-                disabled={isLoading}
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Avatar Image *</label>
-              <input
-                name="avatar"
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500"
-                disabled={isLoading}
-                required
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Cover Image (Optional)</label>
-              <input
-                name="coverImage"
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500"
-                disabled={isLoading}
-              />
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                style={{ whiteSpace: 'nowrap', height: 44 }}
+              >
+                {showPassword ? 'Hide' : 'Show'}
+              </button>
             </div>
           </div>
 
+          <div className="form-group">
+            <label className="form-label">Confirm Password *</label>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input
+                name="confirmPassword"
+                type={showConfirmPassword ? 'text' : 'password'}
+                required
+                value={formData.confirmPassword}
+                onChange={handleInputChange}
+                className="form-input"
+                placeholder="Confirm password"
+                disabled={isLoading}
+              />
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => setShowConfirmPassword((v) => !v)}
+                aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+                style={{ whiteSpace: 'nowrap', height: 44 }}
+              >
+                {showConfirmPassword ? 'Hide' : 'Show'}
+              </button>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Avatar Image *</label>
+            <input
+              name="avatar"
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="form-input"
+              disabled={isLoading}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Cover Image (Optional)</label>
+            <input
+              name="coverImage"
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="form-input"
+              disabled={isLoading}
+            />
+          </div>
+
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+            <div className="form-error">
               {error}
             </div>
           )}
@@ -189,7 +204,7 @@ const Register = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 disabled:opacity-50"
+            className="auth-button"
           >
             {isLoading ? 'Creating Account...' : 'Create Account'}
           </button>

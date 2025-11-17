@@ -107,18 +107,75 @@
 
 // export default Navbar;
 // src/components/Navbar.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { searchAPI } from '../api';
 
 const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchRef = useRef(null);
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     await logout();
     navigate('/login');
+  };
+
+  // Debounced search suggestions
+  useEffect(() => {
+    if (searchQuery.trim().length < 2) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    const timeoutId = setTimeout(async () => {
+      try {
+        const response = await searchAPI.getSuggestions(searchQuery);
+        setSuggestions(response.data.data || []);
+        setShowSuggestions(true);
+      } catch (error) {
+        console.error('Error fetching suggestions:', error);
+        setSuggestions([]);
+      }
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      setShowSuggestions(false);
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    if (suggestion.type === 'video') {
+      navigate(`/video/${suggestion.id}`);
+    } else if (suggestion.type === 'channel') {
+      navigate(`/channel/${suggestion.username}`);
+    }
+    setSearchQuery('');
+    setShowSuggestions(false);
   };
 
 //   return (
@@ -239,21 +296,65 @@ return (
     <nav className="navbar">
       <div className="navbar-content">
         <a href="/" className="navbar-logo">
-          <span className="navbar-logo-icon">YT</span>
-          <span className="navbar-logo-text">YouTube Clone</span>
+          <span className="navbar-logo-icon">VF</span>
+          <span className="navbar-logo-text">VidFlow</span>
         </a>
-  
-        <div className="navbar-search">
-          <input 
-            type="text" 
-            placeholder="Search videos..." 
-            className="navbar-search-input"
-          />
-          <button className="navbar-search-btn">
-            🔍
-          </button>
+
+        <div className="navbar-search" ref={searchRef}>
+          <form onSubmit={handleSearchSubmit} className="flex w-full">
+            <input 
+              type="text" 
+              placeholder="Search videos..." 
+              className="navbar-search-input"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => {
+                if (suggestions.length > 0) {
+                  setShowSuggestions(true);
+                }
+              }}
+            />
+            <button type="submit" className="navbar-search-btn">
+              🔍
+            </button>
+          </form>
+          
+          {/* Search Suggestions Dropdown */}
+          {showSuggestions && suggestions.length > 0 && (
+            <div className="search-suggestions">
+              {suggestions.map((suggestion, index) => (
+                <div
+                  key={index}
+                  className="search-suggestion-item"
+                  onClick={() => handleSuggestionClick(suggestion)}
+                >
+                  {suggestion.type === 'video' ? (
+                    <>
+                      <span className="search-suggestion-icon">📹</span>
+                      <div className="search-suggestion-info">
+                        <div className="search-suggestion-title">{suggestion.display}</div>
+                        <div className="search-suggestion-type">Video</div>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <img 
+                        src={suggestion.avatar || '/default-avatar.png'} 
+                        alt={suggestion.username}
+                        className="search-suggestion-avatar"
+                      />
+                      <div className="search-suggestion-info">
+                        <div className="search-suggestion-title">{suggestion.display}</div>
+                        <div className="search-suggestion-type">Channel</div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-  
+
         {isAuthenticated ? (
           <div className="navbar-user">
             <img 

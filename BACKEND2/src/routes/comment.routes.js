@@ -11,6 +11,6 @@ router.route("/delete-comment/:commentId").delete(verifyJWT, deleteComment);
 
 router.route("/update-comment/:commentId").patch(verifyJWT, updateComment);
 
-router.route("/update-comment/:videoId").get(verifyJWT, getVideoComments);
+router.route("/:videoId").get(verifyJWT, getVideoComments);
 
 export default router;

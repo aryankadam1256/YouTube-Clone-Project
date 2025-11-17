@@ -399,6 +399,8 @@ import Upload from './pages/Upload';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
+import Search from './pages/Search';
+import Channel from './pages/Channel';
 import './index.css';
 
 const ProtectedRoute = ({ children }) => {
@@ -465,6 +467,20 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <Profile />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/search" element={
+            <ProtectedRoute>
+              <Layout>
+                <Search />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          <Route path="/channel/:username" element={
+            <ProtectedRoute>
+              <Layout>
+                <Channel />
               </Layout>
             </ProtectedRoute>
           } />

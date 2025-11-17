@@ -37,25 +37,41 @@ console.log("username: ",username);
         throw new ApiError(400,"User with Username or Email already exists");
     }
 // step 4
-    const avatarLocalPath=req.files?.avatar[0].path;
-    const coverImageLocalPath=req.files?.coverImage[0].path;
+//     const avatarLocalPath=req.files?.avatar[0].path;
+//     const coverImageLocalPath=req.files?.coverImage[0].path;
 
-    if(!avatarLocalPath){
-        throw new ApiError(400,"Avatar is required");
-    }
-// step 5
-const avatar=await uploadCloudinary(avatarLocalPath);
-const coverImage=await uploadCloudinary(coverImageLocalPath);
-if(!avatar){
-    throw new ApiError(400,"Avatar is required");
+//     if(!avatarLocalPath){
+//         throw new ApiError(400,"Avatar is required");
+//     }
+// // step 5
+//     const avatar=await uploadCloudinary(avatarLocalPath);
+// const coverImage=await uploadCloudinary(coverImageLocalPath);
+// if(!avatar || !avatar.url){
+//     throw new ApiError(400,"Avatar is required");
+// }
+const avatarFile = req.files?.avatar?.[0];
+const coverFile = req.files?.coverImage?.[0];
+
+if (!avatarFile) {
+    throw new ApiError(400, "Avatar is required");
 }
 
+const avatar = await uploadCloudinary(avatarFile.path);
+const coverImage = coverFile ? await uploadCloudinary(coverFile.path) : null;
+
+const avatarUrl = avatar?.secure_url || avatar?.url;
+const coverImageUrl = coverImage?.secure_url || coverImage?.url || "";
+
+if (!avatarUrl) {
+    throw new ApiError(400, "Avatar upload failed");
+}
 // step 6
 const user=await User.create({
     fullname,
-    avatar:avatar.url,
-    coverImage:coverImage.url || "",
-    email,
+    avatar: avatarUrl,
+    coverImage: coverImageUrl,
+
+    email: email.toLowerCase(),
     password,
     username:username.toLowerCase()
 
@@ -69,7 +85,7 @@ const createdUser=await User.findById(user._id).select(
     }
 
     return res.status(201).json(
-        new ApiResponse(200,"User registered successfully,createrUser")
+        new ApiResponse(201,createdUser,"User registered successfully")
     );
 //res.status(201).json(createdUser);
 });
@@ -77,10 +93,10 @@ const createdUser=await User.findById(user._id).select(
 const generateAccessTokenAndRefreshToken=async function(user_id){
     try{
         const user= await User.findById(user_id);
-    const refreshToken=user.generateAccessToken();
     const accessToken=user.generateAccessToken();
+    const refreshToken=user.generateRefreshToken();
     user.refreshToken=refreshToken;
-    
+
     await user.save({validateBeforeSave:false});
     return {accessToken,refreshToken};
     }
@@ -94,18 +110,23 @@ const loginUser=asyncHandler(async(req,res,next)=>{
 
 // step 1:- EXTRACT USER DETAILS
 const {username,password,email}=req.body;
+const normalizedUsername = typeof username === "string" ? username.trim().toLowerCase() : undefined;
+const normalizedEmail = typeof email === "string" ? email.trim().toLowerCase() : undefined;
 
 // step 2:- CHECK FOR MISSING DETIALS FILLED
 // if({username,password,email}.some((field)=> field?.trim() === "")){
 //     throw new ApiError(400,"All fields are required");
 // }
-if(!(username || email)){
+if(!(normalizedUsername || normalizedEmail)){
     throw new ApiError(400,"username or email is required");
 }
 
 // step 3:- VALIDATE IF THE DETAILS EXIST IN THE DATABASE OR NOT
 const user= await User.findOne({
-    $or:[{username},{email}]
+    $or:[
+        ...(normalizedUsername ? [{ username: normalizedUsername }] : []),
+        ...(normalizedEmail ? [{ email: normalizedEmail }] : [])
+    ]
 });
 
 if(user){
@@ -120,7 +141,7 @@ else{
  const isPasswordValid=await user.isPasswordCorrect(password);        
 
  if(!isPasswordValid){
-   throw await ApiError(401,"Password is incorrect");
+   throw new ApiError(401,"Password is incorrect");
  }
 // STEP 5 :- CREATE JWT TOKEN AND SEND IT BACK TO THE USER
 
@@ -220,7 +241,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
             secure: true
         }
     
-        const {accessToken, newRefreshToken} = await generateAccessAndRefereshTokens(user._id)
+        const {accessToken, refreshToken: newRefreshToken} = await generateAccessTokenAndRefreshToken(user._id)
     
         return res
         .status(200)

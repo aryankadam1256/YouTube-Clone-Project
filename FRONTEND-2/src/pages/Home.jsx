@@ -170,25 +170,45 @@
 // src/pages/Home.jsx
 import React, { useState, useEffect } from 'react';
 import VideoCard from '../components/VideoCard';
-import { videoAPI } from '../api';
+import { videoAPI, recommendAPI } from '../api';
+import { useAuth } from '../context/AuthContext';
 
 const Home = () => {
   const [videos, setVideos] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     fetchVideos();
-  }, []);
+  }, [isAuthenticated]);
 
   const fetchVideos = async () => {
     try {
       setIsLoading(true);
-      const response = await videoAPI.getAllVideos();
+      let response;
+      
+      // Use recommendations if user is authenticated, otherwise use regular video list
+      if (isAuthenticated) {
+        response = await recommendAPI.home();
+      } else {
+        response = await videoAPI.getAllVideos({ page: 1, limit: 20, sortBy: 'views', sortType: 'desc' });
+      }
+      
       setVideos(response.data.data || []);
     } catch (error) {
       console.error('Error fetching videos:', error);
       setError('Failed to load videos');
+      // Fallback to regular videos if recommendations fail
+      if (isAuthenticated) {
+        try {
+          const fallbackResponse = await videoAPI.getAllVideos({ page: 1, limit: 20, sortBy: 'views', sortType: 'desc' });
+          setVideos(fallbackResponse.data.data || []);
+          setError(null);
+        } catch (fallbackError) {
+          console.error('Fallback also failed:', fallbackError);
+        }
+      }
     } finally {
       setIsLoading(false);
     }
@@ -228,7 +248,9 @@ const Home = () => {
 
   return (
     <div className="main-content">
-      <h1 className="page-title">Latest Videos</h1>
+      <h1 className="page-title">
+        {isAuthenticated ? 'Recommended For You' : 'Latest Videos'}
+      </h1>
       
       {videos.length === 0 ? (
         <div className="text-center" style={{paddingTop: '80px'}}>
