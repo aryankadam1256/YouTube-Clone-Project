@@ -19,13 +19,19 @@ const videoSchema=new Schema(
         required:true
       },
       duration:{
-        type:Number, //cloudinary url
+        type:Number, // seconds
         required:true
       },
-      // videoFile:{
-      //   type:String,
-      //   required:true
-      // },
+      tags:{
+        type:[String],
+        index:true,
+        default:[]
+      },
+      language:{
+        type:String,
+        index:true,
+        default:"en"
+      },
       views:{
         type:Number,
         default:0
@@ -33,6 +39,23 @@ const videoSchema=new Schema(
       isPublished:{
         type:Boolean,
         default:true
+      },
+      publishedAt:{
+        type:Date,
+        default:()=>new Date()
+      },
+      transcript:{
+        type:String,
+        default:""
+      },
+      embedding:{
+        type:[Number],
+        select:false,
+        default:undefined
+      },
+      transcriptUrl:{
+        type:String,
+        default:null
       },
       owner:{
         type:Schema.Types.ObjectId,

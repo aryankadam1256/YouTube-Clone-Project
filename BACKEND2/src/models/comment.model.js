@@ -6,15 +6,15 @@ const commentSchema=new Schema({
         type:String,
         required:true
     },
-    user:{
+    video:{
         type:Schema.Types.ObjectId,
         ref:"Video",
-        //required:true
+        required:true
     },
     owner:{
          type:Schema.Types.ObjectId,
-          ref:"User",
-         //required:true
+         ref:"User",
+         required:true
     }
     
 },{

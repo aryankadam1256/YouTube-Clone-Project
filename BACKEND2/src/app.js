@@ -26,10 +26,13 @@ import playlistRouter from "./routes/playlist.routes.js";
 import videoRouter from "./routes/video.routes.js";
 import tweetRouter from "./routes/tweet.routes.js";
 import dashboardRouter from "./routes/dashboard.routes.js";
+import recommendationRouter from "./routes/recommendation.routes.js";
+import searchRouter from "./routes/search.routes.js";
+import eventsRouter from "./routes/events.routes.js";
 // routes declaration
 app.use("/api/v1/users",userRouter);
 
-app.use("api/v1/comments",commentRouter);
+app.use("/api/v1/comments",commentRouter);
 
 app.use("/api/v1/subscriptions",subscriptionRouter);
 
@@ -42,6 +45,12 @@ app.use("/api/v1/videos",videoRouter);
 app.use("/api/v1/tweets",tweetRouter);
 
 app.use("/api/v1/dashboards",dashboardRouter);
+
+app.use("/api/v1/recommendations",recommendationRouter);
+
+app.use("/api/v1/search",searchRouter);
+
+app.use("/api/v1/events",eventsRouter);
 
 //http://localhost:8000/api/v1/users/register
 

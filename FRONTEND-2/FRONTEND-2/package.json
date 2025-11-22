@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "frontend-2": "file:.."
+  }
+}

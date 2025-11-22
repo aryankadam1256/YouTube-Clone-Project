@@ -1,84 +1,3 @@
-// src/components/VideoCard.jsx
-// import React from 'react';
-// import { Link } from 'react-router-dom';
-
-// const VideoCard = ({ video }) => {
-//   const formatDuration = (seconds) => {
-//     const mins = Math.floor(seconds / 60);
-//     const secs = Math.floor(seconds % 60);
-//     return `${mins}:${secs.toString().padStart(2, '0')}`;
-//   };
-
-//   const formatViews = (views) => {
-//     if (views >= 1000000) {
-//       return `${(views / 1000000).toFixed(1)}M views`;
-//     } else if (views >= 1000) {
-//       return `${(views / 1000).toFixed(1)}K views`;
-//     }
-//     return `${views} views`;
-//   };
-
-//   const formatDate = (dateString) => {
-//     const date = new Date(dateString);
-//     const now = new Date();
-//     const diffTime = Math.abs(now - date);
-//     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-//     if (diffDays === 1) return '1 day ago';
-//     if (diffDays < 30) return `${diffDays} days ago`;
-//     if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
-//     return `${Math.floor(diffDays / 365)} years ago`;
-//   };
-
-//   return (
-//     <Link to={`/video/${video._id}`} className="block group">
-//       <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200">
-//         {/* Thumbnail */}
-//         <div className="relative aspect-video bg-gray-200 rounded-t-lg overflow-hidden">
-//           <img
-//             src={video.thumbnail}
-//             alt={video.title}
-//             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-//           />
-//           <div className="absolute bottom-2 right-2 bg-black bg-opacity-80 text-white text-xs px-2 py-1 rounded">
-//             {formatDuration(video.duration)}
-//           </div>
-//         </div>
-
-//         {/* Video Info */}
-//         <div className="p-4">
-//           <div className="flex space-x-3">
-//             {/* Channel Avatar */}
-//             <img
-//               src={video.ownerDetails?.avatar || '/default-avatar.png'}
-//               alt={video.ownerDetails?.username}
-//               className="w-10 h-10 rounded-full object-cover flex-shrink-0"
-//             />
-
-//             {/* Video Details */}
-//             <div className="flex-1">
-//               <h3 className="font-semibold text-gray-900 line-clamp-2 group-hover:text-blue-600 transition-colors">
-//                 {video.title}
-//               </h3>
-//               <p className="text-gray-600 text-sm mt-1">
-//                 {video.ownerDetails?.username}
-//               </p>
-//               <div className="flex items-center text-gray-500 text-sm mt-1 space-x-2">
-//                 <span>{formatViews(video.views)}</span>
-//                 <span>•</span>
-//                 <span>{formatDate(video.createdAt)}</span>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </Link>
-//   );
-// };
-
-// export default VideoCard;
-
-// src/components/VideoCard.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -103,7 +22,7 @@ const VideoCard = ({ video }) => {
     const now = new Date();
     const diffTime = Math.abs(now - date);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 1) return '1 day ago';
     if (diffDays < 30) return `${diffDays} days ago`;
     if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
@@ -111,33 +30,50 @@ const VideoCard = ({ video }) => {
   };
 
   return (
-    <Link to={`/video/${video._id}`} className="video-card">
-      <div className="video-thumbnail-container">
+    <Link
+      to={`/video/${video._id}`}
+      className="group block transition-all hover:scale-[1.02]"
+    >
+      {/* Thumbnail Container */}
+      <div className="relative aspect-video overflow-hidden rounded-xl bg-slate-200">
         <img
           src={video.thumbnail}
           alt={video.title}
-          className="video-thumbnail"
+          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
-        <span className="video-duration">
+
+        {/* Duration Badge */}
+        <span className="absolute bottom-2 right-2 rounded-md bg-black/80 px-1.5 py-0.5 text-xs font-semibold text-white">
           {formatDuration(video.duration)}
         </span>
       </div>
 
-      <div className="video-info">
-        <div className="video-info-header">
-          <img
-            src={video.ownerDetails?.avatar || '/default-avatar.png'}
-            alt={video.ownerDetails?.username}
-            className="video-channel-avatar"
-          />
-          <div className="video-details">
-            <h3 className="video-title">{video.title}</h3>
-            <p className="video-channel-name">{video.ownerDetails?.username}</p>
-            <div className="video-metadata">
-              <span>{formatViews(video.views)}</span>
-              <span>•</span>
-              <span>{formatDate(video.createdAt)}</span>
-            </div>
+      {/* Video Info */}
+      <div className="mt-3 flex gap-3">
+        {/* Channel Avatar */}
+        <img
+          src={video.ownerDetails?.avatar || '/default-avatar.png'}
+          alt={video.ownerDetails?.username}
+          className="h-9 w-9 flex-shrink-0 rounded-full object-cover"
+        />
+
+        {/* Video Details */}
+        <div className="flex-1 min-w-0">
+          {/* Title */}
+          <h3 className="mb-1 font-semibold text-slate-900 line-clamp-2 group-hover:text-brand-blue transition-colors">
+            {video.title}
+          </h3>
+
+          {/* Channel Name */}
+          <p className="text-sm text-slate-600 mb-0.5">
+            {video.ownerDetails?.username}
+          </p>
+
+          {/* Views and Date */}
+          <div className="flex items-center gap-1.5 text-xs text-slate-500">
+            <span>{formatViews(video.views)}</span>
+            <span>•</span>
+            <span>{formatDate(video.createdAt)}</span>
           </div>
         </div>
       </div>

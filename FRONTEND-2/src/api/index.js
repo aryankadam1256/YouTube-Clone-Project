@@ -69,14 +69,14 @@ export const videoAPI = {
   }),
   updateVideo: (videoId, data) => apiClient.patch(`/videos/${videoId}`, data),
   deleteVideo: (videoId) => apiClient.delete(`/videos/${videoId}`),
-  togglePublishStatus: (videoId) => apiClient.patch(`/videos/toggle-publishstatus/${videoId}`),
+  togglePublishStatus: (videoId) => apiClient.patch(`/videos/${videoId}/toggle-publish`),
 };
 
 // Comment API calls
 export const commentAPI = {
 //   getVideoComments: (videoId) => apiClient.get(`/comments/update-comment/${videoId}`),
-getVideoComments: (videoId) => apiClient.get(`/comments/${videoId}`),
-addComment: (videoId, comment) => apiClient.post(`/comments/add-comment/${videoId}`, { comment }),
+  getVideoComments: (videoId) => apiClient.get(`/comments/${videoId}`),
+  addComment: (videoId, comment) => apiClient.post(`/comments/add-comment/${videoId}`, { comment }),
   updateComment: (commentId, newcomment) => apiClient.patch(`/comments/update-comment/${commentId}`, { newcomment }),
   deleteComment: (commentId) => apiClient.delete(`/comments/delete-comment/${commentId}`),
 };
@@ -86,12 +86,40 @@ export const likeAPI = {
   toggleVideoLike: (videoId) => apiClient.patch(`/likes/toggle-videolike/${videoId}`),
   toggleCommentLike: (commentId) => apiClient.patch(`/likes/toggle-commentlike/${commentId}`),
   getLikedVideos: () => apiClient.get('/likes/getlikedvideos'),
+  getVideoLikeCount: (videoId) => apiClient.get(`/likes/video-like-count/${videoId}`),
 };
 
 // Dashboard API calls
 export const dashboardAPI = {
-  getChannelStats: (channelId) => apiClient.get(`/dashboards/stats/${channelId}`),
-  getChannelVideos: (channelId) => apiClient.get(`/dashboards/videos/${channelId}`),
+  getChannelStats: (channelId) => apiClient.get(`/dashboards/get-channel-stats/${channelId}`),
+  getChannelVideos: (channelId) => apiClient.get(`/dashboards/get-channel-videos/${channelId}`),
+};
+
+// Recommendation API calls
+export const recommendAPI = {
+  home: () => apiClient.get('/recommendations'),
+  related: (videoId) => apiClient.get(`/recommendations/${videoId}/related`),
+  byTags: (tags) => apiClient.get('/recommendations/tags', { params: { tags } }),
+  logWatch: (videoId) => apiClient.post('/events/watch', { videoId }),
+  logLike: (videoId) => apiClient.post('/events/like', { videoId }),
+};
+
+// Search API calls
+export const searchAPI = {
+  getSuggestions: (q) => apiClient.get('/search/suggest', { params: { q } }),
+  searchVideos: (q, params) => apiClient.get('/search/videos', { params: { q, ...params } }),
+};
+
+// Subscription API calls
+export const subscriptionAPI = {
+  toggle: (channelId) => apiClient.patch(`/subscriptions/toggle-subscription/${channelId}`),
+  subscribers: (channelId) => apiClient.get(`/subscriptions/subscribers/${channelId}`),
+  subscribedChannels: (subscriberId) => apiClient.get(`/subscriptions/subscribed-channels/${subscriberId}`),
+};
+
+// Channel API (profile by username)
+export const channelAPI = {
+  getByUsername: (username) => apiClient.get(`/users/c/${username}`),
 };
 
 export default apiClient;

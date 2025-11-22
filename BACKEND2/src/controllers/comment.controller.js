@@ -24,7 +24,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
         // method 2 :- using agg pipeline 
     const comments = await Comment.aggregate([
             {
-              $match: { user: mongoose.Types.ObjectId(videoId) }
+              $match: { video: new mongoose.Types.ObjectId(videoId) }
             },
             {
               $lookup: {
@@ -44,10 +44,10 @@ const getVideoComments = asyncHandler(async (req, res) => {
             },
             {
               $project: {
-                content: 1,
+                content: "$comment",
                 createdAt: 1,
                 "owner.username": 1,
-                "owner.fullName": 1,
+                "owner.fullname": 1,
                 "owner.avatar": 1
               }
             }
@@ -73,7 +73,7 @@ const addComment = asyncHandler(async (req, res) => {
 
     const commentObj={
         comment,
-        user:userId,
+        owner:userId,
         video:videoId
     }
     const commentCreated=await Comment.create(commentObj);

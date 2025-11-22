@@ -22,6 +22,6 @@
         req.user=user;
         next();
     }catch(err){
-        throw new ApiError(401,error?.message || "Invalid access token");
+        throw new ApiError(401,err?.message || "Invalid access token");
     }
  })

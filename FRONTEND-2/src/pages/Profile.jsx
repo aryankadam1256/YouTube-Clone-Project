@@ -1,136 +1,3 @@
-// src/pages/Profile.jsx
-// import React, { useState, useEffect } from 'react';
-// import { useAuth } from '../context/AuthContext';
-// import { dashboardAPI, videoAPI } from '../api';
-// import VideoCard from '../components/VideoCard';
-
-// const Profile = () => {
-//   const { user } = useAuth();
-//   const [userVideos, setUserVideos] = useState([]);
-//   const [stats, setStats] = useState(null);
-//   const [isLoading, setIsLoading] = useState(true);
-
-//   useEffect(() => {
-//     if (user) {
-//       fetchUserData();
-//     }
-//   }, [user]);
-
-//   const fetchUserData = async () => {
-//     try {
-//       setIsLoading(true);
-      
-//       // Fetch user videos
-//       const videosResponse = await videoAPI.getAllVideos({ userId: user._id });
-//       setUserVideos(videosResponse.data.data || []);
-      
-//       // Fetch channel stats
-//       try {
-//         const statsResponse = await dashboardAPI.getChannelStats(user._id);
-//         setStats(statsResponse.data.data);
-//       } catch (error) {
-//         console.log('Stats not available');
-//       }
-      
-//     } catch (error) {
-//       console.error('Error fetching user data:', error);
-//     } finally {
-//       setIsLoading(false);
-//     }
-//   };
-
-//   if (isLoading) {
-//     return (
-//       <div className="pt-20 px-6">
-//         <div className="max-w-6xl mx-auto">
-//           <div className="animate-pulse">
-//             <div className="h-48 bg-gray-300 rounded-lg mb-6"></div>
-//             <div className="h-8 bg-gray-300 rounded mb-4 w-1/3"></div>
-//             <div className="grid grid-cols-4 gap-4 mb-8">
-//               {[...Array(4)].map((_, i) => (
-//                 <div key={i} className="h-20 bg-gray-300 rounded"></div>
-//               ))}
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className="pt-20 px-6">
-//       <div className="max-w-6xl mx-auto">
-//         {/* Cover Image */}
-//         <div className="relative h-48 bg-gradient-to-r from-red-500 to-red-600 rounded-lg mb-6 overflow-hidden">
-//           {user?.coverImage && (
-//             <img
-//               src={user.coverImage}
-//               alt="Cover"
-//               className="w-full h-full object-cover"
-//             />
-//           )}
-//         </div>
-
-//         {/* Profile Info */}
-//         <div className="flex items-start space-x-6 mb-8">
-//           <img
-//             src={user?.avatar || '/default-avatar.png'}
-//             alt={user?.username}
-//             className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
-//           />
-//           <div className="flex-1">
-//             <h1 className="text-3xl font-bold text-gray-900 mb-2">{user?.fullname}</h1>
-//             <p className="text-gray-600 text-lg mb-4">@{user?.username}</p>
-//             <p className="text-gray-500">{user?.email}</p>
-//           </div>
-//         </div>
-
-//         {/* Stats */}
-//         {stats && (
-//           <div className="grid grid-cols-4 gap-6 mb-8">
-//             <div className="bg-white p-6 rounded-lg shadow">
-//               <div className="text-2xl font-bold text-gray-900">{stats.totalVideos}</div>
-//               <div className="text-gray-600">Videos</div>
-//             </div>
-//             <div className="bg-white p-6 rounded-lg shadow">
-//               <div className="text-2xl font-bold text-gray-900">{stats.totalViews}</div>
-//               <div className="text-gray-600">Views</div>
-//             </div>
-//             <div className="bg-white p-6 rounded-lg shadow">
-//               <div className="text-2xl font-bold text-gray-900">{stats.totalSubscribers}</div>
-//               <div className="text-gray-600">Subscribers</div>
-//             </div>
-//             <div className="bg-white p-6 rounded-lg shadow">
-//               <div className="text-2xl font-bold text-gray-900">{stats.totalLikes}</div>
-//               <div className="text-gray-600">Likes</div>
-//             </div>
-//           </div>
-//         )}
-
-//         {/* User Videos */}
-//         <div>
-//           <h2 className="text-2xl font-bold mb-6">Your Videos ({userVideos.length})</h2>
-//           {userVideos.length === 0 ? (
-//             <div className="text-center py-12">
-//               <div className="text-gray-500 text-xl mb-4">No videos uploaded yet</div>
-//               <p className="text-gray-400">Upload your first video to get started!</p>
-//             </div>
-//           ) : (
-//             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-//               {userVideos.map((video) => (
-//                 <VideoCard key={video._id} video={video} />
-//               ))}
-//             </div>
-//           )}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Profile;
-
-// src/pages/Profile.jsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { dashboardAPI, videoAPI } from '../api';
@@ -138,9 +5,10 @@ import VideoCard from '../components/VideoCard';
 
 const Profile = () => {
   const { user } = useAuth();
-  const [userVideos, setUserVideos] = useState([]);
   const [stats, setStats] = useState(null);
+  const [userVideos, setUserVideos] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('videos'); // 'videos', 'playlists', 'about'
 
   useEffect(() => {
     if (user) {
@@ -151,23 +19,14 @@ const Profile = () => {
   const fetchUserData = async () => {
     try {
       setIsLoading(true);
-      
-      const videosResponse = await videoAPI.getAllVideos({ userId: user._id });
+
+      // Fetch channel stats
+      const statsResponse = await dashboardAPI.getChannelStats(user._id);
+      setStats(statsResponse.data.data);
+
+      // Fetch user's videos
+      const videosResponse = await dashboardAPI.getChannelVideos(user._id);
       setUserVideos(videosResponse.data.data || []);
-      
-      try {
-        const statsResponse = await dashboardAPI.getChannelStats(user._id);
-        setStats(statsResponse.data.data);
-      } catch (error) {
-        console.log('Stats not available');
-        setStats({
-          totalVideos: userVideos.length,
-          totalViews: 0,
-          totalSubscribers: 0,
-          totalLikes: 0
-        });
-      }
-      
     } catch (error) {
       console.error('Error fetching user data:', error);
     } finally {
@@ -175,70 +34,190 @@ const Profile = () => {
     }
   };
 
+  const formatNumber = (num) => {
+    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+    return num;
+  };
+
   if (isLoading) {
     return (
-      <div className="profile-container">
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <div>Loading profile...</div>
+      <div className="animate-pulse">
+        <div className="h-48 sm:h-56 bg-slate-200 rounded-xl mb-4"></div>
+        <div className="h-32 w-32 rounded-full bg-slate-200 -mt-16 ml-8 border-4 border-white"></div>
+        <div className="mt-4 ml-8 space-y-2">
+          <div className="h-6 bg-slate-200 rounded w-48"></div>
+          <div className="h-4 bg-slate-200 rounded w-32"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="profile-container">
-      <div className="profile-header"></div>
-      
-      <div className="profile-info">
-        <img
-          src={user?.avatar || '/default-avatar.png'}
-          alt={user?.username}
-          className="profile-avatar"
-        />
-        <div className="profile-details">
-          <h1 className="profile-name">{user?.fullname || user?.username}</h1>
-          <p className="profile-username">@{user?.username}</p>
-          <p className="profile-email">{user?.email}</p>
-        </div>
+    <div className="-mx-4 lg:-mx-8">
+      {/* Cover Banner */}
+      <div className="relative h-48 sm:h-56 overflow-hidden rounded-t-xl">
+        {user?.coverImage ? (
+          <img
+            src={user.coverImage}
+            alt="Cover"
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="h-full w-full bg-brand-gradient"></div>
+        )}
       </div>
 
-      {stats && (
-        <div className="profile-stats">
-          <div className="stat-card">
-            <div className="stat-number">{stats.totalVideos || userVideos.length}</div>
-            <div className="stat-label">Videos</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-number">{stats.totalViews || 0}</div>
-            <div className="stat-label">Views</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-number">{stats.totalSubscribers || 0}</div>
-            <div className="stat-label">Subscribers</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-number">{stats.totalLikes || 0}</div>
-            <div className="stat-label">Likes</div>
-          </div>
+      {/* Profile Header */}
+      <div className="px-4 lg:px-8">
+        {/* Avatar (Overlapping Banner) */}
+        <div className="-mt-16 mb-4">
+          <img
+            src={user?.avatar || '/default-avatar.png'}
+            alt={user?.username}
+            className="h-32 w-32 rounded-full border-4 border-white object-cover shadow-lg"
+          />
         </div>
-      )}
 
-      <div>
-        <h2 className="page-title">Your Videos ({userVideos.length})</h2>
-        {userVideos.length === 0 ? (
-          <div className="text-center" style={{padding: '60px 20px'}}>
-            <div style={{fontSize: '18px', marginBottom: '8px', color: '#606060'}}>No videos uploaded yet</div>
-            <p style={{color: '#909090', marginBottom: '20px'}}>Upload your first video to get started!</p>
-            <a href="/upload" className="btn btn-primary">Upload Video</a>
-          </div>
-        ) : (
-          <div className="video-grid">
-            {userVideos.map((video) => (
-              <VideoCard key={video._id} video={video} />
-            ))}
+        {/* User Info */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-slate-900 mb-1">
+            {user?.fullname}
+          </h1>
+          <p className="text-slate-600 mb-2">@{user?.username}</p>
+          <p className="text-sm text-slate-500">{user?.email}</p>
+        </div>
+
+        {/* Stats */}
+        {stats && (
+          <div className="mb-6 flex flex-wrap gap-6 text-center sm:text-left">
+            <div>
+              <div className="text-2xl font-bold text-slate-900">
+                {formatNumber(stats.totalVideos)}
+              </div>
+              <div className="text-sm text-slate-600">Videos</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-slate-900">
+                {formatNumber(stats.totalSubscribers)}
+              </div>
+              <div className="text-sm text-slate-600">Subscribers</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-slate-900">
+                {formatNumber(stats.totalViews)}
+              </div>
+              <div className="text-sm text-slate-600">Total Views</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-slate-900">
+                {formatNumber(stats.totalLikes)}
+              </div>
+              <div className="text-sm text-slate-600">Likes</div>
+            </div>
           </div>
         )}
+
+        {/* Tabs Navigation */}
+        <div className="border-b border-slate-200 mb-6">
+          <nav className="flex gap-8">
+            <button
+              onClick={() => setActiveTab('videos')}
+              className={`pb-3 text-sm font-medium transition-colors ${activeTab === 'videos'
+                  ? 'border-b-2 border-brand-blue text-brand-blue'
+                  : 'text-slate-600 hover:text-slate-900'
+                }`}
+            >
+              Videos
+            </button>
+            <button
+              onClick={() => setActiveTab('playlists')}
+              className={`pb-3 text-sm font-medium transition-colors ${activeTab === 'playlists'
+                  ? 'border-b-2 border-brand-blue text-brand-blue'
+                  : 'text-slate-600 hover:text-slate-900'
+                }`}
+            >
+              Playlists
+            </button>
+            <button
+              onClick={() => setActiveTab('about')}
+              className={`pb-3 text-sm font-medium transition-colors ${activeTab === 'about'
+                  ? 'border-b-2 border-brand-blue text-brand-blue'
+                  : 'text-slate-600 hover:text-slate-900'
+                }`}
+            >
+              About
+            </button>
+          </nav>
+        </div>
+
+        {/* Tab Content */}
+        <div>
+          {activeTab === 'videos' && (
+            <div>
+              <h2 className="mb-6 text-xl font-semibold text-slate-900">
+                Your Videos ({userVideos.length})
+              </h2>
+
+              {userVideos.length === 0 ? (
+                <div className="flex flex-col items-center justify-center rounded-xl bg-slate-50 py-16">
+                  <div className="mb-2 text-lg font-medium text-slate-600">
+                    No videos uploaded yet
+                  </div>
+                  <p className="mb-6 text-sm text-slate-500">
+                    Start sharing your content with the world!
+                  </p>
+                  <a
+                    href="/upload"
+                    className="inline-flex h-10 items-center justify-center rounded-xl bg-brand-gradient px-6 py-2 text-sm font-medium text-white hover:opacity-90 transition-opacity"
+                  >
+                    Upload Video
+                  </a>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-8">
+                  {userVideos.map((video) => (
+                    <VideoCard key={video._id} video={video} />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'playlists' && (
+            <div className="flex flex-col items-center justify-center rounded-xl bg-slate-50 py-16">
+              <div className="mb-2 text-lg font-medium text-slate-600">
+                Playlists coming soon
+              </div>
+              <p className="text-sm text-slate-500">
+                Organize your videos into playlists
+              </p>
+            </div>
+          )}
+
+          {activeTab === 'about' && (
+            <div className="rounded-xl bg-slate-50 p-6">
+              <h3 className="mb-4 text-lg font-semibold text-slate-900">
+                Channel Description
+              </h3>
+              <div className="space-y-3 text-sm text-slate-700">
+                <div>
+                  <span className="font-medium">Username:</span> @{user?.username}
+                </div>
+                <div>
+                  <span className="font-medium">Email:</span> {user?.email}
+                </div>
+                <div>
+                  <span className="font-medium">Full Name:</span> {user?.fullname}
+                </div>
+                <div>
+                  <span className="font-medium">Joined:</span>{' '}
+                  {new Date(user?.createdAt).toLocaleDateString()}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
