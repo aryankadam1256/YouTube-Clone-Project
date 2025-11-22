@@ -1,116 +1,9 @@
-// // src/components/Navbar.jsx
-// import React, { useState } from 'react';
-// import { Link, useNavigate } from 'react-router-dom';
-// import { useAuth } from '../context/AuthContext';
-
-// const Navbar = () => {
-//   const { user, isAuthenticated, logout } = useAuth();
-//   const [showUserMenu, setShowUserMenu] = useState(false);
-//   const navigate = useNavigate();
-
-//   const handleLogout = async () => {
-//     await logout();
-//     navigate('/login');
-//   };
-
-//   return (
-//     <nav className="bg-white shadow-lg fixed top-0 w-full z-50">
-//       <div className="max-w-7xl mx-auto px-4">
-//         <div className="flex justify-between items-center h-16">
-//           {/* Logo */}
-//           <Link to="/" className="flex items-center space-x-2">
-//             <div className="bg-red-600 text-white px-2 py-1 rounded font-bold text-xl">
-//               YT
-//             </div>
-//             <span className="font-semibold text-xl text-gray-800">
-//               YouTube Clone
-//             </span>
-//           </Link>
-
-//           {/* Search Bar */}
-//           <div className="flex-1 max-w-2xl mx-8">
-//             <div className="relative">
-//               <input
-//                 type="text"
-//                 placeholder="Search videos..."
-//                 className="w-full px-4 py-2 border border-gray-300 rounded-l-full focus:outline-none focus:border-blue-500"
-//               />
-//               <button className="absolute right-0 top-0 h-full px-6 bg-gray-100 border border-l-0 border-gray-300 rounded-r-full hover:bg-gray-200">
-//                 <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-//                 </svg>
-//               </button>
-//             </div>
-//           </div>
-
-//           {/* User Menu */}
-//           {isAuthenticated ? (
-//             <div className="relative">
-//               <button
-//                 onClick={() => setShowUserMenu(!showUserMenu)}
-//                 className="flex items-center space-x-2 text-gray-700 hover:text-gray-900"
-//               >
-//                 <img
-//                   src={user?.avatar || '/default-avatar.png'}
-//                   alt="Profile"
-//                   className="w-8 h-8 rounded-full object-cover"
-//                 />
-//                 <span className="font-medium">{user?.username}</span>
-//               </button>
-
-//               {showUserMenu && (
-//                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
-//                   <Link
-//                     to="/profile"
-//                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-//                     onClick={() => setShowUserMenu(false)}
-//                   >
-//                     Profile
-//                   </Link>
-//                   <Link
-//                     to="/upload"
-//                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-//                     onClick={() => setShowUserMenu(false)}
-//                   >
-//                     Upload Video
-//                   </Link>
-//                   <button
-//                     onClick={handleLogout}
-//                     className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-//                   >
-//                     Logout
-//                   </button>
-//                 </div>
-//               )}
-//             </div>
-//           ) : (
-//             <div className="flex space-x-4">
-//               <Link
-//                 to="/login"
-//                 className="text-blue-600 hover:text-blue-800 font-medium"
-//               >
-//                 Login
-//               </Link>
-//               <Link
-//                 to="/register"
-//                 className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-//               >
-//                 Sign Up
-//               </Link>
-//             </div>
-//           )}
-//         </div>
-//       </div>
-//     </nav>
-//   );
-// };
-
-// export default Navbar;
-// src/components/Navbar.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Search, User, Upload, LogOut, Menu } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { searchAPI } from '../api';
+import { cn } from '../lib/utils';
 
 const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -143,7 +36,7 @@ const Navbar = () => {
         console.error('Error fetching suggestions:', error);
         setSuggestions([]);
       }
-    }, 300); // 300ms debounce
+    }, 300);
 
     return () => clearTimeout(timeoutId);
   }, [searchQuery]);
@@ -178,206 +71,147 @@ const Navbar = () => {
     setShowSuggestions(false);
   };
 
-//   return (
-//     <nav className="bg-white shadow-lg fixed top-0 w-full z-50">
-//       <div className="max-w-7xl mx-auto px-4">
-//         <div className="flex justify-between items-center h-16">
-//           {/* Logo */}
-//           <Link to="/" className="flex items-center space-x-2">
-//             <div className="bg-red-600 text-white px-2 py-1 rounded font-bold text-xl">
-//               YT
-//             </div>
-//             <span className="font-semibold text-xl text-gray-800">
-//               YouTube Clone
-//             </span>
-//           </Link>
-
-//           {/* Search Bar */}
-//           <div className="flex-1 max-w-2xl mx-8">
-//             <div className="relative">
-//               <input
-//                 type="text"
-//                 placeholder="Search videos..."
-//                 className="w-full px-4 py-2 border border-gray-300 rounded-l-full focus:outline-none focus:border-blue-500"
-//               />
-//               <button className="absolute right-0 top-0 h-full px-6 bg-gray-100 border border-l-0 border-gray-300 rounded-r-full hover:bg-gray-200">
-//                 <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-//                 </svg>
-//               </button>
-//             </div>
-//           </div>
-
-//           {/* User Menu */}
-//           {isAuthenticated ? (
-//             <div className="relative">
-//               <button
-//                 onClick={() => setShowUserMenu(!showUserMenu)}
-//                 className="flex items-center space-x-2 text-gray-700 hover:text-gray-900"
-//               >
-//                 <img
-//                   src={user?.avatar || '/default-avatar.png'}
-//                   alt="Profile"
-//                   className="w-8 h-8 rounded-full object-cover"
-//                 />
-//                 <span className="font-medium">{user?.username}</span>
-//               </button>
-
-//               {showUserMenu && (
-//                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-//                {/* <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10"> */}
-//                   <Link
-//                     to="/profile"
-//                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-//                     onClick={() => setShowUserMenu(false)}
-//                   >
-//                     Profile
-//                   </Link>
-//                   <Link
-//                     to="/upload"
-//                     className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-//                     onClick={() => setShowUserMenu(false)}
-//                   >
-//                     Upload Video
-//                   </Link>
-//                   <button
-//                     onClick={handleLogout}
-//                     className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-//                   >
-//                     Logout
-//                   </button>
-//                 </div>
-//               )}
-//             </div>
-//           ) : (
-//             <div className="flex space-x-4">
-//               <Link
-//                 to="/login"
-//                 className="text-blue-600 hover:text-blue-800 font-medium"
-//               >
-//                 Login
-//               </Link>
-//               <Link
-//                 to="/register"
-//                 className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-//               >
-//                 Sign Up
-//               </Link>
-//             </div>
-//           )}
-//         </div>
-//       </div>
-//     </nav>
-//   );
-// return (
-//     <nav className="navbar">
-//       <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%'}}>
-//         {/* Logo */}
-//         <div style={{display: 'flex', alignItems: 'center'}}>
-//           <span style={{background: '#ff0000', color: 'white', padding: '5px 10px', borderRadius: '4px', marginRight: '10px'}}>YT</span>
-//           <span style={{fontSize: '18px', fontWeight: 'bold'}}>YouTube Clone</span>
-//         </div>
-  
-//         {/* User menu */}
-//         {isAuthenticated ? (
-//           <div style={{display: 'flex', alignItems: 'center'}}>
-//             <img src={user?.avatar || '/default-avatar.png'} alt="Profile" style={{width: '35px', height: '35px', borderRadius: '50%', marginRight: '10px'}} />
-//             <span>{user?.username}</span>
-//           </div>
-//         ) : (
-//           <div>
-//             <a href="/login" className="btn btn-primary">Login</a>
-//           </div>
-//         )}
-//       </div>
-//     </nav>
-//   );
-return (
-    <nav className="navbar">
-      <div className="navbar-content">
-        <a href="/" className="navbar-logo">
-          <span className="navbar-logo-icon">VF</span>
-          <span className="navbar-logo-text">VidFlow</span>
-        </a>
-
-        <div className="navbar-search" ref={searchRef}>
-          <form onSubmit={handleSearchSubmit} className="flex w-full">
-            <input 
-              type="text" 
-              placeholder="Search videos..." 
-              className="navbar-search-input"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => {
-                if (suggestions.length > 0) {
-                  setShowSuggestions(true);
-                }
-              }}
-            />
-            <button type="submit" className="navbar-search-btn">
-              🔍
-            </button>
-          </form>
-          
-          {/* Search Suggestions Dropdown */}
-          {showSuggestions && suggestions.length > 0 && (
-            <div className="search-suggestions">
-              {suggestions.map((suggestion, index) => (
-                <div
-                  key={index}
-                  className="search-suggestion-item"
-                  onClick={() => handleSuggestionClick(suggestion)}
-                >
-                  {suggestion.type === 'video' ? (
-                    <>
-                      <span className="search-suggestion-icon">📹</span>
-                      <div className="search-suggestion-info">
-                        <div className="search-suggestion-title">{suggestion.display}</div>
-                        <div className="search-suggestion-type">Video</div>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <img 
-                        src={suggestion.avatar || '/default-avatar.png'} 
-                        alt={suggestion.username}
-                        className="search-suggestion-avatar"
-                      />
-                      <div className="search-suggestion-info">
-                        <div className="search-suggestion-title">{suggestion.display}</div>
-                        <div className="search-suggestion-type">Channel</div>
-                      </div>
-                    </>
-                  )}
-                </div>
-              ))}
+  return (
+    <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container mx-auto px-4 sm:px-6">
+        <div className="flex h-14 items-center justify-between gap-4">
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 via-blue-700 to-orange-600 px-2.5 py-1.5 text-xs font-bold uppercase tracking-wider text-white shadow-lg">
+              VF
             </div>
-          )}
-        </div>
+            <span className="hidden sm:inline-block text-lg font-semibold text-foreground">
+              VidFlow
+            </span>
+          </Link>
 
-        {isAuthenticated ? (
-          <div className="navbar-user">
-            <img 
-              src={user?.avatar || '/default-avatar.png'} 
-              alt="Profile" 
-              className="navbar-user-avatar"
-              onClick={() => setShowUserMenu(!showUserMenu)}
-            />
-            <span className="navbar-user-name">{user?.username}</span>
-            
-            {showUserMenu && (
-              <div className="navbar-dropdown">
-                <a href="/profile" className="navbar-dropdown-item">Profile</a>
-                <a href="/upload" className="navbar-dropdown-item">Upload Video</a>
-                <button onClick={handleLogout} className="navbar-dropdown-item">Logout</button>
+          {/* Search Bar */}
+          <div ref={searchRef} className="relative flex-1 max-w-2xl mx-4">
+            <form onSubmit={handleSearchSubmit} className="flex w-full">
+              <input
+                type="text"
+                placeholder="Search videos..."
+                className={cn(
+                  "flex-1 h-9 rounded-l-full border border-input bg-background px-4 py-1 text-sm",
+                  "transition-colors placeholder:text-muted-foreground",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
+                )}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => {
+                  if (suggestions.length > 0) {
+                    setShowSuggestions(true);
+                  }
+                }}
+              />
+              <button
+                type="submit"
+                className={cn(
+                  "flex items-center justify-center h-9 px-4 rounded-r-full",
+                  "bg-gradient-to-r from-blue-600 to-blue-700 text-white",
+                  "hover:brightness-110 transition-all"
+                )}
+              >
+                <Search className="h-4 w-4" />
+              </button>
+            </form>
+
+            {/* Search Suggestions Dropdown */}
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-popover border border-border rounded-lg shadow-lg max-h-96 overflow-y-auto z-50">
+                {suggestions.map((suggestion, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-accent transition-colors border-b border-border/50 last:border-0"
+                    onClick={() => handleSuggestionClick(suggestion)}
+                  >
+                    {suggestion.type === 'video' ? (
+                      <>
+                        <Search className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium text-foreground truncate">
+                            {suggestion.display}
+                          </div>
+                          <div className="text-xs text-muted-foreground">Video</div>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <img
+                          src={suggestion.avatar || '/default-avatar.png'}
+                          alt={suggestion.username}
+                          className="h-8 w-8 rounded-full object-cover border border-border flex-shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium text-foreground truncate">
+                            {suggestion.display}
+                          </div>
+                          <div className="text-xs text-muted-foreground">Channel</div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ))}
               </div>
             )}
           </div>
-        ) : (
-          <div>
-            <a href="/login" className="btn btn-primary">Sign In</a>
-          </div>
-        )}
+
+          {/* User Menu */}
+          {isAuthenticated ? (
+            <div className="relative flex items-center gap-2 flex-shrink-0">
+              <img
+                src={user?.avatar || '/default-avatar.png'}
+                alt="Profile"
+                className="h-8 w-8 rounded-full object-cover cursor-pointer border-2 border-border hover:border-primary transition-colors"
+                onClick={() => setShowUserMenu(!showUserMenu)}
+              />
+              <span className="hidden md:inline-block text-sm font-medium text-foreground">
+                {user?.username}
+              </span>
+
+              {showUserMenu && (
+                <div className="absolute top-full right-0 mt-2 w-48 bg-popover border border-border rounded-lg shadow-lg overflow-hidden z-50">
+                  <Link
+                    to="/profile"
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm text-popover-foreground hover:bg-accent transition-colors"
+                    onClick={() => setShowUserMenu(false)}
+                  >
+                    <User className="h-4 w-4" />
+                    Profile
+                  </Link>
+                  <Link
+                    to="/upload"
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm text-popover-foreground hover:bg-accent transition-colors"
+                    onClick={() => setShowUserMenu(false)}
+                  >
+                    <Upload className="h-4 w-4" />
+                    Upload Video
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-popover-foreground hover:bg-accent transition-colors border-t border-border/50"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <Link
+                to="/login"
+                className={cn(
+                  "inline-flex items-center justify-center h-9 px-4 py-2 rounded-md",
+                  "bg-gradient-to-r from-blue-600 via-blue-700 to-orange-600 text-white text-sm font-medium",
+                  "hover:brightness-110 transition-all shadow-sm"
+                )}
+              >
+                Sign In
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
     </nav>
   );
