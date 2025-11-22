@@ -52,7 +52,7 @@ ELASTICSEARCH_VIDEO_INDEX=videos
 ELASTICSEARCH_TLS_SKIP_VERIFY=true
 
 # AI/ML Keys
-HF_API_KEY=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
+HF_API_KEY=your_huggingface_api_key_here
 ```
 
 ---
