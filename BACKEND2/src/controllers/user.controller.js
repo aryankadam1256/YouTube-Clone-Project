@@ -9,7 +9,6 @@ import mongoose from "mongoose";
 // 1) register user
 const registerUser = asyncHandler(async (req, res, next) => {
     const { username, fullname, email, password } = req.body;
-    console.log("username: ", username);
 
     if ([fullname, email, username, password].some((field) => field?.trim() === "")) {
         throw new ApiError(400, "All fields are required");
@@ -243,7 +242,7 @@ const updateUserDetails = asyncHandler(async (req, res) => {
     const { newfullname, newemail } = req.body;
 
     if (!newfullname || !newemail) {
-        throw ApiError(400, "username or email is missing");
+        throw new ApiError(400, "username or email is missing");
     }
 
     const user = await User.findByIdAndUpdate(
@@ -266,13 +265,13 @@ const updateAvatar = asyncHandler(async (req, res) => {
     const avatarLocalPath = req.file?.path;
 
     if (!avatarLocalPath) {
-        throw ApiError(400, "Avatar file is missing");
+        throw new ApiError(400, "Avatar file is missing");
     }
 
     const avatar = await uploadCloudinary(avatarLocalPath);
 
     if (!avatar.url) {
-        throw ApiError(400, "Error while uploading on avatar");
+        throw new ApiError(400, "Error while uploading on avatar");
     }
 
     const user = await User.findByIdAndUpdate(
@@ -296,13 +295,13 @@ const updatecoverImage = asyncHandler(async (req, res) => {
     const coverImageLocalPath = req.file?.path;
 
     if (!coverImageLocalPath) {
-        throw ApiError(400, "coverImage file is missing");
+        throw new ApiError(400, "coverImage file is missing");
     }
 
     const coverImage = await uploadCloudinary(coverImageLocalPath);
 
     if (!coverImage.url) {
-        throw ApiError(400, "Error while uploading on avatar");
+        throw new ApiError(400, "Error while uploading on avatar");
     }
 
     const user = await User.findByIdAndUpdate(

@@ -8,6 +8,7 @@ import { ApiError } from "../utils/ApiError.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { index as pineconeIndex } from "../services/pineconeClient.js";
 import { generateEmbedding } from "../services/hfService.js";
+import { getEsClient } from "../services/esClient.js";
 
 const VIDEO_INDEX = process.env.ELASTICSEARCH_VIDEO_INDEX || "videos";
 
@@ -75,7 +76,6 @@ const getRecommendedVideos = asyncHandler(async (req, res) => {
         .sort((a, b) => tagFrequency[b] - tagFrequency[a])
         .slice(0, 10);
 
-    const es = getEsClient();
     let recommendationHits = [];
 
     let userEmbedding = preferenceVectors.length
@@ -263,6 +263,7 @@ export const getRelatedVideos = asyncHandler(async (req, res) => {
     const es = getEsClient();
     let relatedHits = [];
 
+
     if (pineconeIndex && Array.isArray(video.embedding) && video.embedding.length) {
         try {
             const searchResponse = await pineconeIndex.query({
@@ -280,7 +281,7 @@ export const getRelatedVideos = asyncHandler(async (req, res) => {
         }
     }
 
-    if (!relatedHits.length && video.tags?.length) {
+    if (es && !relatedHits.length && video.tags?.length) {
         const { hits } = await es.search({
             index: VIDEO_INDEX,
             size: 20,
@@ -356,13 +357,6 @@ export const getTagRecommendations = asyncHandler(async (req, res) => {
             .split(",")
             .map((tag) => tag.trim())
             .filter(Boolean);
-
-    const es = getEsClient();
-    if (pineconeIndex) {
-        // Pinecone doesn't support tag-based search easily without vectors. 
-        // We will skip Pinecone for simple tag recommendations and use MongoDB fallback.
-        // Or we could generate an embedding for the tags string, but let's keep it simple.
-    }
 
     const videos = await Video.aggregate([
         {

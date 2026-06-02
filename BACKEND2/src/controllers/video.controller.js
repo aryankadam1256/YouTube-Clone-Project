@@ -177,6 +177,14 @@ const updateVideo = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid video id");
     }
 
+    const existing = await Video.findById(videoId);
+    if (!existing) {
+        throw new ApiError(404, "Video not found");
+    }
+    if (existing.owner.toString() !== req.user._id.toString()) {
+        throw new ApiError(403, "You are not allowed to update this video");
+    }
+
     const allowedFields = [
         "title",
         "description",
@@ -248,10 +256,15 @@ const deleteVideo = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid video id");
     }
 
-    const video = await Video.findByIdAndDelete(videoId);
+    const video = await Video.findById(videoId);
     if (!video) {
         throw new ApiError(404, "Video not found");
     }
+    if (video.owner.toString() !== req.user._id.toString()) {
+        throw new ApiError(403, "You are not allowed to delete this video");
+    }
+
+    await Video.findByIdAndDelete(videoId);
 
     await removeVideo(video._id);
 
