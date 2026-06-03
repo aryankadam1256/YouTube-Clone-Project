@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { 
+import {
     loginUser,
      registerUser,
      logoutUser,
@@ -14,18 +14,28 @@ import {
          } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { validateBody } from "../middlewares/validate.middleware.js";
+import {
+    registerSchema,
+    loginSchema,
+    changePasswordSchema,
+    updateUserSchema,
+} from "../validators/user.validators.js";
+import { authLimiter } from "../middlewares/rateLimiter.middleware.js";
+
 const router=Router();
 
 router.route("/register").post(
-// router.route("/login").post(login);
+     authLimiter,
      upload.fields([
          {name:"avatar",maxCount:1},
          {name:"coverImage",maxCount:1}
      ]),
+     validateBody(registerSchema),
      registerUser
      )
 
-router.route("/login").post(loginUser);
+router.route("/login").post(authLimiter, validateBody(loginSchema), loginUser);
 
 // SECURE ROUTE
 
@@ -33,11 +43,11 @@ router.route("/logout").post(verifyJWT,logoutUser);
 
 router.route("/refresh-token").post(refreshAccessToken);
 
-router.route("/change-password").post(verifyJWT,changeCurrentPassword);
+router.route("/change-password").post(verifyJWT, validateBody(changePasswordSchema), changeCurrentPassword);
 
 router.route("/current-user").get(verifyJWT,getCurrentUser);
 
-router.route("/update-user").patch(verifyJWT,updateUserDetails);
+router.route("/update-user").patch(verifyJWT, validateBody(updateUserSchema), updateUserDetails);
 
 router.route("/avatar").patch(verifyJWT,upload.single("avatar"),updateAvatar);
 

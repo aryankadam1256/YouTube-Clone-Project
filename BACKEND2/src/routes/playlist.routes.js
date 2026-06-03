@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { 
+import {
     createPlaylist,
     deletePlaylist,
     getPlaylistById,
@@ -9,34 +9,29 @@ import {
     addVideoToPlaylist
 } from "../controllers/playlist.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { validateBody } from "../middlewares/validate.middleware.js";
+import { createPlaylistSchema, updatePlaylistSchema } from "../validators/playlist.validators.js";
 
 const router = Router();
 
-// Add a video to a playlist
 router.route("/playlists/:playlistId/add-video/:videoId")
-    .patch(verifyJWT, addVideoToPlaylist);  // PATCH is suitable for updating an existing playlist
+    .patch(verifyJWT, addVideoToPlaylist);
 
-// Remove a video from a playlist
 router.route("/playlists/:playlistId/remove-video/:videoId")
     .patch(verifyJWT, removeVideoFromPlaylist);
 
-// Get a single playlist by ID
 router.route("/playlists/:playlistId")
     .get(verifyJWT, getPlaylistById);
 
-// Create a new playlist
 router.route("/playlists")
-    .post(verifyJWT, createPlaylist);
+    .post(verifyJWT, validateBody(createPlaylistSchema), createPlaylist);
 
-// Get all playlists of a user
 router.route("/users/:userId/playlists")
     .get(verifyJWT, getUserPlaylists);
 
-// Update playlist details
 router.route("/playlists/:playlistId")
-    .patch(verifyJWT, updatePlaylist);
+    .patch(verifyJWT, validateBody(updatePlaylistSchema), updatePlaylist);
 
-// Delete a playlist
 router.route("/playlists/:playlistId")
     .delete(verifyJWT, deletePlaylist);
 

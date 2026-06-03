@@ -1,11 +1,31 @@
 import express from "express";
 import cookieParser from "cookie-parser";
-const app = express();
 import cors from "cors";
+import helmet from "helmet";
+import { globalLimiter } from "./middlewares/rateLimiter.middleware.js";
+
+const app = express();
+
+// Security headers (XSS, clickjacking, MIME sniffing, HSTS, etc.)
+app.use(helmet());
+
+// CORS — only allow explicitly listed origins; never fall back to wildcard
+const allowedOrigins = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(",").map((o) => o.trim())
+    : [];
+
 app.use(cors({
-    origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(",") : "*",
-    credentials: true
+    origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, curl, Postman)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) return callback(null, true);
+        callback(new Error(`CORS: origin ${origin} not allowed`));
+    },
+    credentials: true,
 }));
+
+// Global rate limit — 100 req / 15 min per IP across all routes
+app.use(globalLimiter);
 
 app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));

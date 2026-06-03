@@ -9,7 +9,9 @@ import {
     getTrendingVideos
 } from "../controllers/video.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
-import { upload } from "../middlewares/multer.middleware.js"; // Assuming you have this for file uploads
+import { upload } from "../middlewares/multer.middleware.js";
+import { validateBody } from "../middlewares/validate.middleware.js";
+import { publishVideoSchema, updateVideoSchema } from "../validators/video.validators.js";
 
 const router = Router();
 
@@ -20,7 +22,7 @@ router.route("/").get(getAllVideos);
 router.route("/trending").get(getTrendingVideos);
 
 // Publish a new video (upload video file)
-router.route("/publish").post(verifyJWT, upload.single("videoFile"), publishAVideo);
+router.route("/publish").post(verifyJWT, upload.single("videoFile"), validateBody(publishVideoSchema), publishAVideo);
 
 // Toggle publish status (auth required)
 router.route("/:videoId/toggle-publish").patch(verifyJWT, togglePublishStatus);
@@ -29,7 +31,7 @@ router.route("/:videoId/toggle-publish").patch(verifyJWT, togglePublishStatus);
 router.route("/:videoId").get(getVideoById);
 
 // Update a video by ID
-router.route("/:videoId").patch(verifyJWT, updateVideo);
+router.route("/:videoId").patch(verifyJWT, validateBody(updateVideoSchema), updateVideo);
 
 // Delete a video by ID
 router.route("/:videoId").delete(verifyJWT, deleteVideo);

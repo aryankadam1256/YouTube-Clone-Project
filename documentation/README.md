@@ -23,7 +23,7 @@ documentation/
 | Phase | Name | Status |
 |---|---|---|
 | 1 | Bug Fixes | ✅ Complete |
-| 2 | Security Layer | 🔜 Upcoming |
+| 2 | Security Layer | ✅ Complete |
 | 3 | Observability | 🔜 Upcoming |
 | 4 | Developer Experience | 🔜 Upcoming |
 | 5 | API Documentation (Swagger) | 🔜 Upcoming |
