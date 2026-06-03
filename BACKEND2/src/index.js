@@ -1,24 +1,33 @@
-// require("dotenv").config({path:"./env"});
 import dotenv from "dotenv";
 import { app } from "./app.js";
-// import mongoose from "mongoose"
-// import { DB_NAME } from "../constants";
 import connectDB from "./db/index.js";
 
-// Load .env only in development (Render uses Environment Variables)
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== "production") {
     dotenv.config({ path: "./.env" });
 }
 
+// Catch async errors that escape route handlers
+process.on("unhandledRejection", (reason) => {
+    console.error("[unhandledRejection]", reason);
+    process.exit(1);
+});
+
+// Catch synchronous errors (programming bugs, not request errors)
+process.on("uncaughtException", (err) => {
+    console.error("[uncaughtException]", err);
+    process.exit(1);
+});
+
 connectDB()
     .then(() => {
-        app.listen(process.env.PORT || 8000, () => {
-            console.log("server is running on port ", process.env.PORT || 8000);
+        const port = process.env.PORT || 8000;
+        app.listen(port, () => {
+            console.log(`[server] running on port ${port} (${process.env.NODE_ENV || "development"})`);
         });
-    }
-    )
-    .catch((err) => {
-        console.log("mongodb connection failed ", err);
     })
+    .catch((err) => {
+        console.error("[startup] MongoDB connection failed:", err);
+        process.exit(1);
+    });
 
 

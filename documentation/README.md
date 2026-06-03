@@ -24,8 +24,8 @@ documentation/
 |---|---|---|
 | 1 | Bug Fixes | ✅ Complete |
 | 2 | Security Layer | ✅ Complete |
-| 3 | Observability | 🔜 Upcoming |
-| 4 | Developer Experience | 🔜 Upcoming |
+| 3 | Observability | ✅ Complete |
+| 4 | Developer Experience | ✅ Complete |
 | 5 | API Documentation (Swagger) | 🔜 Upcoming |
 | 6 | Testing Suite | 🔜 Upcoming |
 | 7 | CI/CD Pipeline | 🔜 Upcoming |

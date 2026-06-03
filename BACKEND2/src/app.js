@@ -2,12 +2,17 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import helmet from "helmet";
+import morgan from "morgan";
 import { globalLimiter } from "./middlewares/rateLimiter.middleware.js";
+import { errorHandler } from "./middlewares/errorHandler.middleware.js";
 
 const app = express();
 
 // Security headers (XSS, clickjacking, MIME sniffing, HSTS, etc.)
 app.use(helmet());
+
+// Request logging — colorized in dev, Apache combined format in production
+app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 
 // CORS — only allow explicitly listed origins; never fall back to wildcard
 const allowedOrigins = process.env.CORS_ORIGIN
@@ -71,6 +76,14 @@ app.use("/api/v1/recommendations", recommendationRouter);
 app.use("/api/v1/search", searchRouter);
 
 app.use("/api/v1/events", eventsRouter);
+
+// 404 handler — must be after all routes
+app.use((req, res) => {
+    res.status(404).json({ success: false, statusCode: 404, message: `Cannot ${req.method} ${req.originalUrl}` });
+});
+
+// Global error handler — must be the last middleware (4 args signature required by Express)
+app.use(errorHandler);
 
 //http://localhost:8000/api/v1/users/register
 

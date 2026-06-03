@@ -21,26 +21,10 @@
 // //    }
 // // }
 
-const asyncHandler = (fn) => async (req, res, next) => {
-  try {
-    return await fn(req, res, next);
-  } catch (err) {
-//-    res.status(err.code || 500).json({
-    const statusCode =
-      typeof err.statusCode === "number"
-        ? err.statusCode
-        : typeof err.status === "number"
-        ? err.status
-        : err.code && Number.isInteger(err.code)
-        ? err.code
-        : 500;
-
-    res.status(statusCode).json({
-      success: false,
-      message: err.message,
-      ...(process.env.NODE_ENV !== "production" && { stack: err.stack })
-    });
-  }
+// Wraps async route handlers and forwards any thrown error to Express's
+// error-handling middleware via next(err) instead of responding directly.
+const asyncHandler = (fn) => (req, res, next) => {
+    Promise.resolve(fn(req, res, next)).catch(next);
 };
 
 export default asyncHandler;
