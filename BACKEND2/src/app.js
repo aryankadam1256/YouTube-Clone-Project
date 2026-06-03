@@ -3,8 +3,10 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
+import swaggerUi from "swagger-ui-express";
 import { globalLimiter } from "./middlewares/rateLimiter.middleware.js";
 import { errorHandler } from "./middlewares/errorHandler.middleware.js";
+import { swaggerSpec } from "./config/swagger.js";
 
 const app = express();
 
@@ -41,6 +43,14 @@ app.use(cookieParser());
 
 
 
+
+// Swagger UI — interactive API docs at /api/docs
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// Raw OpenAPI JSON for tooling (Postman import, code generators)
+app.get("/api/docs.json", (req, res) => {
+    res.setHeader("Content-Type", "application/json");
+    res.send(swaggerSpec);
+});
 
 // router import
 import userRouter from "./routes/user.routes.js";
